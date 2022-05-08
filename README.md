@@ -1,6 +1,8 @@
 # Batch2OS
 A fun and dumb project made in C# that compiles batch code into native x86 code
 
+![image](https://user-images.githubusercontent.com/49339966/167302328-3a19c666-0121-47ab-bc3b-da3aef58f5bd.png)
+
 # Compile
 Build Batch2OS, then in the directory where it got built create a file named ``os.bat`` where you can put your commands.
 
