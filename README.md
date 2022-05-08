@@ -10,6 +10,6 @@ Build Batch2OS, then in the directory where it got built create a file named ``o
 - It's just dumb
 
 # TODO
-[x] Go into protected mode
-[x] Use 0xB8000 to draw text
-[x] Load more sectors than just one
+- Go into protected mode
+- Use 0xB8000 to draw text
+- Load more sectors than just one
