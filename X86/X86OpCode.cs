@@ -16,7 +16,10 @@ public enum X86OpCode : byte
     MOVMRDH = 0xB6,
     MOVMRDL = 0xB2,
     MOVMRBL = 0xB3,
+    MOVMRCH = 0xB5,
+    MOVMRCL = 0xB1,
     MOVMREBX = 0xBB,
+    MOVMREBXW = 0x8B,
     JMPF = 0xEA,
     JMP = 0xEB,
     INT = 0xCD,
@@ -26,6 +29,7 @@ public enum X86OpCode : byte
     PUSHDS = 0x1E,
     POPDS = 0x1F,
     OREAX = 0x83,
+    XOR = 0x31,
     
     BIT16 = 0x66,
     
@@ -34,7 +38,7 @@ public enum X86OpCode : byte
     MOVCRREAX = 0x20,
     MOVRCREAX = 0x22,
     
-    DS = 0xDE,
-    ES = 0xC6,
+    AXES = 0xC0,
+    DS = 0xD8,
     SS = 0xD6
 }
