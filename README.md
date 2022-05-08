@@ -2,7 +2,14 @@
 A fun and dumb project made in C# that compiles batch code into native x86 code
 
 # Compile
-Build Batch2OS, then in the directory where it got built create a file named ``os.bat`` where you can put your commands. Note that for now, only ``echo`` is supported.
+Build Batch2OS, then in the directory where it got built create a file named ``os.bat`` where you can put your commands.
+
+# Supported commands
+- ``help``
+- ``cls``
+- ``echo``
+- ``pause``
+- ``ver``
 
 # Limitations
 - Only 512 bytes (first sector)
