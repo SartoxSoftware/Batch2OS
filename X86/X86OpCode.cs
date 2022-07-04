@@ -22,6 +22,7 @@ public enum X86OpCode : byte
     MOVMREBXW = 0x8B,
     JMPF = 0xEA,
     JMP = 0xEB,
+    JNE = 0x75,
     INT = 0xCD,
     INAL = 0xE4,
     OUTAL = 0xE6,
@@ -29,6 +30,7 @@ public enum X86OpCode : byte
     PUSHDS = 0x1E,
     POPDS = 0x1F,
     OREAX = 0x83,
+    ORAH = 0x08,
     XOR = 0x31,
     
     BIT16 = 0x66,
@@ -40,5 +42,8 @@ public enum X86OpCode : byte
     
     AXES = 0xC0,
     DS = 0xD8,
-    SS = 0xD6
+    SS = 0xD0,
+    AH = 0xE4,
+    
+    LAST = 0xFE
 }

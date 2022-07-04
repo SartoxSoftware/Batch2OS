@@ -1,10 +1,14 @@
 # Batch2OS
 A fun and dumb project made in C# that compiles batch code into native x86 code
 
-![image](https://user-images.githubusercontent.com/49339966/167302328-3a19c666-0121-47ab-bc3b-da3aef58f5bd.png)
+![img.png](img.png)
 
 # Compile
-Build Batch2OS, then in the directory where it got built create a file named ``os.bat`` where you can put your commands.
+First, you must build Batch2OS. After that, create a batch file with some code in it, then execute this command to get a native binary:</br>
+``Batch2OS <file>.bat``<br/>
+You can now run the OS on a virtual hypervisor like QEMU:<br/>
+``qemu-system-x86_64 -hdd <file>.bin``<br/>
+Or just run it on bare metal!
 
 # Supported commands
 - ``help``
@@ -14,11 +18,8 @@ Build Batch2OS, then in the directory where it got built create a file named ``o
 - ``ver``
 
 # Limitations
-- Only 512 bytes (first sector)
 - Uses BIOS interrupts to draw text
-- It's just dumb
+- It's limited to loading up to 255 sectors because of the byte limit
 
 # TODO
-- Go into protected mode
-- Use 0xB8000 to draw text
-- Load more sectors than just one
+- Go into protected mode and use 0xB8000 to draw text
