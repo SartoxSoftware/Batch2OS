@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Batch2OS.BIL;
 
 public static class BILCompiler
@@ -37,6 +39,10 @@ public static class BILCompiler
                 case "echo":
                     list.Add(new BILInstruction(BILOpCode.PrintScreen, args[1].Select(x => (byte)x)));
                     list.Add(new BILInstruction(BILOpCode.Interrupt, 0x10));
+                    break;
+
+                case "color":
+                    list.Add(new BILInstruction(BILOpCode.SetColor, byte.Parse(args[1], NumberStyles.HexNumber)));
                     break;
 
                 case "pause":

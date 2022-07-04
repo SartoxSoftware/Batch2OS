@@ -7,13 +7,14 @@ public static class X86Assembler
     private static readonly List<byte> Bytes = new();
     private static readonly uint Address = 0x1000;
     private static readonly ushort OrgAddr = 0x7c00;
-    private static readonly byte[] ZeroAddr = BitConverter.GetBytes((ushort)0x00);
 
     public static byte[] Assemble(List<BILInstruction> list)
     {
+        byte color = 0x07; // Light gray on black by default
+        
         // Initialization
         AddInstruction(X86OpCode.JMPF, BitConverter.GetBytes((ushort)(OrgAddr + 5)));
-        Bytes.AddRange(ZeroAddr);
+        Bytes.Add(0x00); Bytes.Add(0x00);
 
         // Reset segment registers
         AddInstruction(X86OpCode.XOR, (byte)X86OpCode.AXES);
@@ -36,7 +37,7 @@ public static class X86Assembler
 
         // Jump to the next sector
         AddInstruction(X86OpCode.JMPF, BitConverter.GetBytes(Address));
-        Bytes.AddRange(ZeroAddr);
+        Bytes.Add(0x00); Bytes.Add(0x00);
 
         // Pad out with zeroes
         for (var i = Bytes.Count; i < 510; i++)
@@ -68,12 +69,8 @@ public static class X86Assembler
                     {
                         if (b == '\n')
                         {
-                            // New line (increase DH)
-                            Bytes.Add(0xFE);
-                            Bytes.Add(0xC6);
-
+                            AddInstruction(X86OpCode.INC, (byte)X86OpCode.DH); // New line
                             AddInstruction(X86OpCode.MOVMRAH, 0x02); // Function code
-                            AddInstruction(X86OpCode.MOVMRBH, 0x00); // Page number
                             AddInstruction(X86OpCode.MOVMRDL, 0x00);
                             AddInstruction(X86OpCode.INT, 0x10);
 
@@ -81,19 +78,24 @@ public static class X86Assembler
                         }
 
                         AddInstruction(X86OpCode.MOVMRAL, b);
-                        AddInstruction(X86OpCode.MOVMRAH, 0x0E); // Tell BIOS that we need to print one character on screen
-                        AddInstruction(X86OpCode.MOVMRBH, 0x00); // Page number
+                        AddInstruction(X86OpCode.MOVMRAH, 0x09); // Tell BIOS that we need to print one character on screen
+                        AddInstruction(X86OpCode.MOVMRBL, color); // Color attribute
+                        AddInstruction(X86OpCode.MOVMRCX, 0x01, 0x00); // Print the character only one time
+                        AddInstruction(X86OpCode.INT, 0x10);
+                        
+                        // Update cursor
+                        AddInstruction(X86OpCode.MOVMRAH, 0x02); // Function code
+                        AddInstruction(X86OpCode.INC, (byte)X86OpCode.DL); // Update cursor position
                         AddInstruction(X86OpCode.INT, 0x10);
                     }
 
                     AddInstruction(X86OpCode.MOVMRAH, 0x02); // Function code
-                    AddInstruction(X86OpCode.MOVMRBH, 0x00); // Page number
-
-                    // New line (increase DH)
-                    Bytes.Add(0xFE);
-                    Bytes.Add(0xC6);
-
+                    AddInstruction(X86OpCode.INC, (byte)X86OpCode.DH); // New line
                     AddInstruction(X86OpCode.MOVMRDL, 0x00); // Column
+                    break;
+                
+                case BILOpCode.SetColor:
+                    color = inst.Operands.ElementAt(0);
                     break;
 
                 case BILOpCode.SetAH:

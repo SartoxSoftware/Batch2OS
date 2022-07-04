@@ -18,12 +18,14 @@ public enum X86OpCode : byte
     MOVMRBL = 0xB3,
     MOVMRCH = 0xB5,
     MOVMRCL = 0xB1,
+    MOVMRCX = 0xB9,
     MOVMREBX = 0xBB,
     MOVMREBXW = 0x8B,
     JMPF = 0xEA,
     JMP = 0xEB,
     JNE = 0x75,
     INT = 0xCD,
+    INC = 0xFE,
     INAL = 0xE4,
     OUTAL = 0xE6,
     ORAL = 0x0C,
@@ -44,6 +46,8 @@ public enum X86OpCode : byte
     DS = 0xD8,
     SS = 0xD0,
     AH = 0xE4,
+    DH = 0xC6,
+    DL = 0xC2,
     
     LAST = 0xFE
 }
