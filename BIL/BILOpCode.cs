@@ -1,6 +1,6 @@
 namespace Batch2OS.BIL;
 
-public enum BILOpCodes
+public enum BILOpCode
 {
     ClearScreen, PrintScreen, Interrupt, SetAH, Jump
 }

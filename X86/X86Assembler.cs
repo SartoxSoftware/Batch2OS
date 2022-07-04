@@ -14,7 +14,7 @@ public static class X86Assembler
         // Initialization
         AddInstruction(X86OpCode.JMPF, BitConverter.GetBytes((ushort)(OrgAddr + 5)));
         Bytes.AddRange(ZeroAddr);
-        
+
         // Reset segment registers
         AddInstruction(X86OpCode.XOR, (byte)X86OpCode.AXES);
         AddInstruction(X86OpCode.MOVSEG, (byte)X86OpCode.AXES);
@@ -45,11 +45,11 @@ public static class X86Assembler
         // Make the binary bootable under real mode
         Bytes.Add(0x55);
         Bytes.Add(0xAA);
-        
+
         foreach (var inst in list)
             switch (inst.OpCode)
             {
-                case BILOpCodes.ClearScreen:
+                case BILOpCode.ClearScreen:
                     // Clear screen
                     AddInstruction(X86OpCode.MOVMRAH, 0x00);
                     AddInstruction(X86OpCode.MOVMRAL, 0x03);
@@ -62,14 +62,27 @@ public static class X86Assembler
                     AddInstruction(X86OpCode.MOVMRDL, 0x00);
                     break;
 
-                case BILOpCodes.PrintScreen:
+                case BILOpCode.PrintScreen:
                     // Print string
                     foreach (var b in inst.Operands)
                     {
+                        if (b == '\n')
+                        {
+                            // New line (increase DH)
+                            Bytes.Add(0xFE);
+                            Bytes.Add(0xC6);
+
+                            AddInstruction(X86OpCode.MOVMRAH, 0x02); // Function code
+                            AddInstruction(X86OpCode.MOVMRBH, 0x00); // Page number
+                            AddInstruction(X86OpCode.MOVMRDL, 0x00);
+                            AddInstruction(X86OpCode.INT, 0x10);
+
+                            continue;
+                        }
+
                         AddInstruction(X86OpCode.MOVMRAL, b);
                         AddInstruction(X86OpCode.MOVMRAH, 0x0E); // Tell BIOS that we need to print one character on screen
                         AddInstruction(X86OpCode.MOVMRBH, 0x00); // Page number
-                        AddInstruction(X86OpCode.MOVMRBL, 0x07); // Text attribute 0x07 is light gray font on black background
                         AddInstruction(X86OpCode.INT, 0x10);
                     }
 
@@ -83,20 +96,20 @@ public static class X86Assembler
                     AddInstruction(X86OpCode.MOVMRDL, 0x00); // Column
                     break;
 
-                case BILOpCodes.SetAH:
-                    AddInstruction(X86OpCode.MOVMRAH, inst.Operands[0]);
+                case BILOpCode.SetAH:
+                    AddInstruction(X86OpCode.MOVMRAH, inst.Operands.ElementAt(0));
                     break;
 
-                case BILOpCodes.Interrupt:
-                    AddInstruction(X86OpCode.INT, inst.Operands[0]);
+                case BILOpCode.Interrupt:
+                    AddInstruction(X86OpCode.INT, inst.Operands.ElementAt(0));
                     break;
 
-                case BILOpCodes.Jump:
-                    AddInstruction(X86OpCode.JMP, inst.Operands.Length == 0 ? (byte)X86OpCode.LAST : inst.Operands[0]);
+                case BILOpCode.Jump:
+                    AddInstruction(X86OpCode.JMP, !inst.Operands.Any() ? (byte)X86OpCode.LAST : inst.Operands.ElementAt(0));
                     break;
 
                 default:
-                    Console.WriteLine($"Skipping unknown BIL instruction: {Enum.GetName(typeof(BILOpCodes), inst.OpCode)}");
+                    Console.WriteLine($"Skipping unknown BIL instruction: {Enum.GetName(typeof(BILOpCode), inst.OpCode)}");
                     break;
             }
 

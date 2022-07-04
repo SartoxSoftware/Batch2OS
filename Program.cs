@@ -9,11 +9,11 @@ var bil = BILCompiler.Compile(lines);
 
 foreach (var inst in bil)
 {
-    Console.Write(Enum.GetName(typeof(BILOpCodes), inst.OpCode));
+    Console.Write(Enum.GetName(typeof(BILOpCode), inst.OpCode));
     foreach (var arg in inst.Operands)
-        Console.Write($" {arg}");
+        Console.Write(" " + arg);
     Console.WriteLine();
 }
 
 Console.WriteLine("Compiling into x86 native code...");
-File.WriteAllBytes(Path.ChangeExtension(path, "bin"), X86Assembler.Assemble(bil));
+File.WriteAllBytes(Path.ChangeExtension(path, "img"), X86Assembler.Assemble(bil));

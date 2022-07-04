@@ -2,18 +2,24 @@ namespace Batch2OS.BIL;
 
 public class BILInstruction
 {
-    public readonly BILOpCodes OpCode;
-    public readonly byte[] Operands;
+    public readonly BILOpCode OpCode;
+    public readonly IEnumerable<byte> Operands;
 
-    public BILInstruction(BILOpCodes opcode, params byte[] operands)
+    public BILInstruction(BILOpCode opcode, params byte[] operands)
     {
         OpCode = opcode;
         Operands = operands;
     }
-    
-    public BILInstruction(BILOpCodes opcode)
+
+    public BILInstruction(BILOpCode opcode, IEnumerable<byte> operands)
     {
         OpCode = opcode;
-        Operands = Array.Empty<byte>();
+        Operands = operands;
+    }
+
+    public BILInstruction(BILOpCode opcode)
+    {
+        OpCode = opcode;
+        Operands = Enumerable.Empty<byte>();
     }
 }
