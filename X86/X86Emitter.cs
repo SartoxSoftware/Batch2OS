@@ -2,15 +2,16 @@ using Batch2OS.BIL;
 
 namespace Batch2OS.X86;
 
-public static class X86Assembler
+public static class X86Emitter
 {
     private static readonly List<byte> Bytes = new();
     private static readonly uint Address = 0x1000;
     private static readonly ushort OrgAddr = 0x7c00;
 
-    public static byte[] Assemble(List<BILInstruction> list)
+    public static byte[] Emit(List<BILInstruction> list)
     {
         byte color = 0x07; // Light gray on black by default
+        var labels = new Dictionary<int, uint>();
         
         // Initialization
         AddInstruction(X86OpCode.JMPF, BitConverter.GetBytes((ushort)(OrgAddr + 5)));
@@ -93,9 +94,13 @@ public static class X86Assembler
                     AddInstruction(X86OpCode.INC, (byte)X86OpCode.DH); // New line
                     AddInstruction(X86OpCode.MOVMRDL, 0x00); // Column
                     break;
-                
+
                 case BILOpCode.SetColor:
                     color = inst.Operands.ElementAt(0);
+                    break;
+
+                case BILOpCode.Define:
+                    labels.Add(0, (uint)Bytes.Count);
                     break;
 
                 case BILOpCode.SetAH:
@@ -107,7 +112,22 @@ public static class X86Assembler
                     break;
 
                 case BILOpCode.Jump:
-                    AddInstruction(X86OpCode.JMP, !inst.Operands.Any() ? (byte)X86OpCode.LAST : inst.Operands.ElementAt(0));
+                    if (!inst.Operands.Any())
+                    {
+                        AddInstruction(X86OpCode.JMP, (byte)X86OpCode.LAST);
+                        break;
+                    }
+
+                    // TODO: Fix jump
+                    // TODO: Jump to labels defined later
+
+                    var exists = labels.TryGetValue(0, out var addr);
+                    if (!exists)
+                        throw new Exception($"Label '{new string(inst.Operands.Select(x => (char)x).ToArray())}' does not exist!");
+
+                    // Perform a far, absolute indirect jump to a 32-bit address
+                    Bytes.Add(0xFF); Bytes.Add(0x25);
+                    Bytes.AddRange(BitConverter.GetBytes(addr));
                     break;
 
                 default:

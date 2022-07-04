@@ -16,4 +16,4 @@ foreach (var inst in bil)
 }
 
 Console.WriteLine("Compiling into x86 native code...");
-File.WriteAllBytes(Path.ChangeExtension(path, "img"), X86Assembler.Assemble(bil));
+File.WriteAllBytes(Path.ChangeExtension(path, "img"), X86Emitter.Emit(bil));

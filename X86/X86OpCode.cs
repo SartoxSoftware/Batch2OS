@@ -23,6 +23,7 @@ public enum X86OpCode : byte
     MOVMREBXW = 0x8B,
     JMPF = 0xEA,
     JMP = 0xEB,
+    JMP32 = 0xE9,
     JNE = 0x75,
     INT = 0xCD,
     INC = 0xFE,
