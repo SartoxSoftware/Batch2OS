@@ -21,5 +21,4 @@ if (settings.Verbose)
         Console.WriteLine();
     }
 
-// 0x7c00 0x1000
 File.WriteAllBytes(settings.OutputFile, X86Emitter.Emit(bil, settings.BaseAddress, settings.LoadAddress));

@@ -11,18 +11,12 @@ public static class BILCompiler
 
         foreach (var line in lines)
         {
-            if (line.StartsWith(':'))
-            {
-                list.Add(new BILInstruction(BILOpCode.Define, line[1..].Select(x => (byte)x)));
-                continue;
-            }
-            
             var args = line.Split(new[] { ' ' }, 2);
             var cmd = args[0];
 
             if (echo && !cmd.StartsWith('@'))
             {
-                list.Add(new BILInstruction(BILOpCode.PrintScreen, ("> " + line).Select(x => (byte)x)));
+                list.Add(new BILInstruction(BILOpCode.PrintScreen, line.Select(x => (byte)x)));
                 list.Add(new BILInstruction(BILOpCode.Interrupt, 0x10));
             }
 
@@ -60,14 +54,6 @@ public static class BILCompiler
                 case "ver":
                     list.Add(new BILInstruction(BILOpCode.PrintScreen, $"Batch2OS v{Utils.Version}".Select(x => (byte)x)));
                     list.Add(new BILInstruction(BILOpCode.Interrupt, 0x10));
-                    break;
-
-                case "goto":
-                    var label = args[1];
-                    if (label.StartsWith(':'))
-                        label = label[1..];
-
-                    list.Add(new BILInstruction(BILOpCode.Jump, label.Select(x => (byte)x)));
                     break;
                     
                 case "REM":

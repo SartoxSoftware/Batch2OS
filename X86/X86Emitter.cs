@@ -13,7 +13,6 @@ public static class X86Emitter
     public static byte[] Emit(List<BILInstruction> list, ushort baseAddr, ushort loadAddr)
     {
         byte color = 0x07; // Light gray on black by default
-        var labels = new Dictionary<int, uint>();
         var axes = EncodeModRM(X86Register.AL_EAX_ES, X86Register.AL_EAX_ES);
         var dh = EncodeModRM(X86Register.DH_ESI, X86Register.AL_EAX_ES);
         var dl = EncodeModRM(X86Register.DL_EDX_SS, X86Register.AL_EAX_ES);
@@ -107,10 +106,6 @@ public static class X86Emitter
                     color = inst.Operands.ElementAt(0);
                     break;
 
-                case BILOpCode.Define:
-                    labels.Add(0, (uint)Bytes.Count);
-                    break;
-
                 case BILOpCode.SetAH:
                     AddInstruction(X86OpCode.MOV_IMM8_AH, inst.Operands.ElementAt(0));
                     break;
@@ -118,37 +113,18 @@ public static class X86Emitter
                 case BILOpCode.Interrupt:
                     AddInstruction(X86OpCode.INT, inst.Operands.ElementAt(0));
                     break;
-
+                
                 case BILOpCode.Jump:
-                    if (!inst.Operands.Any())
-                    {
-                        AddInstruction(X86OpCode.JMP_SHORT, SPECIAL_OPERAND_LAST);
-                        break;
-                    }
-
-                    // TODO: Fix jump
-                    // TODO: Jump to labels defined later
-
-                    var exists = labels.TryGetValue(0, out var addr);
-                    if (!exists)
-                        throw new Exception($"Label '{new string(inst.Operands.Select(x => (char)x).ToArray())}' does not exist!");
-
-                    // Perform a far, absolute indirect jump to a 32-bit address
-                    Bytes.Add(0xFF); Bytes.Add(0x25);
-                    Bytes.AddRange(BitConverter.GetBytes(addr));
+                    AddInstruction(X86OpCode.JMP_SHORT, SPECIAL_OPERAND_LAST);
                     break;
 
                 default:
-                    Console.WriteLine($"Skipping unknown BIL instruction: {Enum.GetName(typeof(BILOpCode), inst.OpCode)}");
+                    Console.WriteLine("Skipping unknown BIL instruction: " + Enum.GetName(typeof(BILOpCode), inst.OpCode));
                     break;
             }
 
-        // Pad out with zeroes
-        var sectors = GetSectors();
-        Bytes[index] = (byte)((sectors - 1) / 512);
-        for (var i = Bytes.Count; i < sectors; i++)
-            Bytes.Add(0x00);
-
+        // Add the number of sectors to read
+        Bytes[index] = (byte)((GetSectors() - 1) / 512);
         return Bytes.ToArray();
     }
 

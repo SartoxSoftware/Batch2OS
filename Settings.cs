@@ -8,9 +8,9 @@ public class Settings
     public string InputFile, OutputFile;
     public ushort BaseAddress, LoadAddress;
 
-    public Settings(string[] args)
+    public Settings(IReadOnlyList<string> args)
     {
-        for (var i = 0; i < args.Length; i++)
+        for (var i = 0; i < args.Count; i++)
         {
             var arg = args[i];
 
