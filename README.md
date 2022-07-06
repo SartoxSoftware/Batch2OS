@@ -10,6 +10,9 @@ You can now run the OS on a virtual hypervisor like QEMU:<br/>
 ``qemu-system-x86_64 -hdd <file>.img``<br/>
 Or just run it on bare metal!
 
+# Compatibility
+Batch2OS emits x86 code that is theoretically compatible starting from the Intel 8086. That is because Batch2OS currently uses real mode BIOS interrupts, which are 16-bit and were introduced back in the 8086.</br>
+
 # Supported commands
 - ``help``
 - ``cls``
