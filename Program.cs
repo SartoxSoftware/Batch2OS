@@ -2,7 +2,7 @@
 using Batch2OS.BIL;
 using Batch2OS.X86;
 
-if (args.Length < 7)
+if (args.Length == 0)
 {
     Console.WriteLine("Usage: Batch2OS <input> -o <output> -b <address> -l <address>\nPlease view help (-h) to know what these arguments mean.");
     Environment.Exit(1);
