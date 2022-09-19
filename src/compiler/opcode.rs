@@ -1,7 +1,6 @@
-namespace Batch2OS.X86;
-
 //https://www.felixcloutier.com/x86 <3333
-public enum X86OpCode : byte
+#[repr(u8)]
+pub enum OpCode
 {
     MOV_OFF_AL = 0xA0,
     MOV_OFF_AX = 0xA1,
@@ -31,20 +30,20 @@ public enum X86OpCode : byte
     MOV_RM16_SEG = 0x8E,
     MOV_IMM8_RM8 = 0xC6,
     MOV_IMM32_RM32 = 0xC7,
-    
+
     OR_AL_IMM8 = 0x0C,
     OR_EAX_IMM32 = 0x0D,
     OR_RM8_R8 = 0x08,
-    
+
     JMP_SHORT = 0xEB,
     JMP_FAR = 0xEA,
     JNZ = 0x75,
-    
+
     INT = 0xCD,
 
     INC_RM8 = 0xFE,
     INC_RM32 = 0xFF,
-    
+
     XOR_AL_IMM8 = 0x34,
     XOR_EAX_IMM32 = 0x35,
     XOR_RM8_IMM8 = 0x80,

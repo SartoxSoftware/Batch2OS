@@ -1,6 +1,5 @@
-namespace Batch2OS.X86;
-
-public enum X86Register : byte
+#[repr(u8)]
+pub enum Register
 {
     AL_EAX_ES,
     CL_ECX_CS,
