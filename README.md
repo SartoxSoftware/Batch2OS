@@ -1,11 +1,11 @@
 # Batch2OS
-A fun and dumb project made in C# that compiles batch code into native x86 code
+A fun and dumb project made in Rust that compiles batch code into native 16-bit x86 code
 
 ![img.png](img.png)
 
 # Compile
 First, you must build Batch2OS. After that, create a batch file with some code in it, then execute this command to get a native binary:</br>
-``Batch2OS <file>.bat -o kernel.img -b 0x7C00 -l 0x1000``<br/>
+``Batch2OS <file>.bat kernel.img 0x7C00 0x1000``<br/>
 You can now run the OS on a virtual hypervisor like QEMU:<br/>
 ``qemu-system-x86_64 -hdd kernel.img``<br/>
 Or just run it on bare metal!<br/>
