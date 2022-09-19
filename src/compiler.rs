@@ -58,10 +58,10 @@ pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u
 
     for line in code
     {
-        let args: Vec<&str> = line.splitn(2, " ").collect();
+        let args: Vec<&str> = line.splitn(2, ' ').collect();
         let cmd = args[0].to_lowercase();
 
-        if echo && !cmd.starts_with("@")
+        if echo && !cmd.starts_with('@')
         {
             print(&mut builder, &line, color);
         }
@@ -157,13 +157,8 @@ fn new_line(builder: &mut Builder)
 
 fn encode_mod_rm(dst: Register, src: Register) -> u8
 {
-    let dst_bin = format!("{:03b}", dst as u8);
-    let src_bin = format!("{:03b}", src as u8);
-
-    let mut str = String::new()
+    u8::from_str_radix(&String::with_capacity(8)
         .add("11")
-        .add(&src_bin)
-        .add(&dst_bin);
-
-    u8::from_str_radix(&str, 2).unwrap()
+        .add(&format!("{:03b}", src as u8))
+        .add(&format!("{:03b}", dst as u8)), 2).unwrap()
 }

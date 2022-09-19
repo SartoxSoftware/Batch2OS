@@ -1,6 +1,6 @@
 mod compiler;
 
-use std::{env, fs, io, u16, u32};
+use std::{env, fs, io, u16};
 use std::io::BufRead;
 
 fn main()
