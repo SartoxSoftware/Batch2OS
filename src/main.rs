@@ -24,7 +24,7 @@ fn main()
             if load_address.starts_with("0x") { u16::from_str_radix(load_address.trim_start_matches("0x"), 16).expect(&format!("Could not parse string \"{}\" as a hexadecimal number.", load_address)) } else { load_address.parse::<u16>().expect(&format!("Could not parse string \"{}\" as a decimal number.", load_address)) }
         );
 
-    fs::write(output, bytes).expect("Couldn't write bytes to output file.");
+    fs::write(output, bytes).expect(&format!("Could not write bytes to output file \"{}\".", output));
 }
 
 fn read_lines(path: &String) -> Vec<String>
