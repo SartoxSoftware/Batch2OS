@@ -60,6 +60,7 @@ pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u
     {
         let args: Vec<&str> = line.splitn(2, ' ').collect();
         let cmd = args[0].to_lowercase();
+        let first_arg = args[1];
 
         if echo && !cmd.starts_with('@')
         {
@@ -68,7 +69,7 @@ pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u
 
         match cmd.as_str()
         {
-            "@echo" => echo = args[1] == "on",
+            "@echo" => echo = first_arg == "on",
             "help" => print(&mut builder, "help - Shows all commands with a brief description.\ncls - Clears the screen.\necho - Echoes a message, or turns on echo for commands.\npause - Pauses the OS until a key is pressed.\nver - Shows the version of Batch2OS.", color),
             "cls" => clear(&mut builder),
             "echo" =>
@@ -79,15 +80,14 @@ pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u
                         continue
                     }
 
-                    let msg = args[1];
-                    match msg
+                    match first_arg
                     {
                         "on" => echo = true,
                         "off" => echo = false,
-                        _ => print(&mut builder, msg, color)
+                        _ => print(&mut builder, first_arg, color)
                     }
                 },
-            "color" => color = u8::from_str_radix(args[1], 16).unwrap(),
+            "color" => color = u8::from_str_radix(first_arg, 16).expect(&format!("Could not parse string \"{}\" as a hexadecimal number.", first_arg)),
             "pause" => pause(&mut builder, color),
             "ver" => print(&mut builder, "Batch2OS v1.1.0", color),
             "rem" | "::" | "title" => {},
@@ -160,5 +160,6 @@ fn encode_mod_rm(dst: Register, src: Register) -> u8
     u8::from_str_radix(&String::with_capacity(8)
         .add("11")
         .add(&format!("{:03b}", src as u8))
-        .add(&format!("{:03b}", dst as u8)), 2).unwrap()
+        .add(&format!("{:03b}", dst as u8)), 2)
+        .unwrap() // We know that it's always going to successfully parse, so using unwrap() is fine
 }
