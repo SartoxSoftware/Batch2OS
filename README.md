@@ -1,5 +1,5 @@
 # Batch2OS
-A Batch to native 16-bit xi6 compiler, made in Rust.
+A Batch to native 16-bit x86 compiler, made in Rust.
 
 ![img.png](img.png)
 
