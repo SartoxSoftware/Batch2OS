@@ -3,13 +3,16 @@ A Batch to native 16-bit x86 compiler, made in Rust.
 
 ![img.png](img.png)
 
-# Compile
-First, you must build Batch2OS. After that, create a batch file with some code in it, then execute this command to get a native binary:</br>
-``Batch2OS <file>.bat kernel.img 0x7C00 0x1000``<br/>
-You can now run the OS on a virtual hypervisor like QEMU:<br/>
-``qemu-system-x86_64 -hdd kernel.img``<br/>
-Or just run it on bare metal!<br/>
-Note: You can also get help by doing ``Batch2OS -h``.
+# Usage
+``Batch2OS <input> <output> <baseAddress> <loadAddress>``
+
+## Example
+``Batch2OS os.bat kernel.bin 0x7C00 0x1000``
+
+# Try it out!
+After you've compiled your batch script as a bootable image file, you may want to try it on bare metal now. If that isn't possible, you can try it out in a VM. Here's an example with QEMU:
+
+``qemu-system-i386 kernel.bin``
 
 # Compatibility
 Batch2OS emits x86 code that is theoretically compatible starting from the Intel 8086. That is because Batch2OS currently uses real mode BIOS interrupts, which are 16-bit and were introduced back in the 8086.</br>
@@ -21,6 +24,7 @@ Batch2OS emits x86 code that is theoretically compatible starting from the Intel
 - ``pause``
 - ``ver``
 - ``color``
+- ``goto``
 
 # Limitations
 - Uses BIOS interrupts to do pretty much everything
