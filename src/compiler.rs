@@ -2,14 +2,15 @@ use std::ops::Add;
 use crate::compiler::builder::Builder;
 use crate::compiler::opcode::OpCode;
 use crate::compiler::register::Register;
+use crate::compiler::label::Label;
 
 mod opcode;
 mod register;
 mod builder;
+mod label;
 
-pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u8>
-{
-    let mut builder = Builder { bytes: vec![] };
+pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u8> {
+    let mut builder = Builder { bytes: vec![], labels: vec![] };
     let mut color: u8 = 7; // Light gray on black by default
     let mut echo = true;
 
@@ -45,8 +46,7 @@ pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u
     builder.bytes.push(0); builder.bytes.push(0);
 
     // Pad out with zeroes
-    for _i in builder.bytes.len()..510
-    {
+    for _i in builder.bytes.len()..510 {
         builder.bytes.push(0);
     }
 
@@ -54,42 +54,52 @@ pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u
     builder.bytes.push(0x55);
     builder.bytes.push(0xAA);
 
+    let boot_len = builder.bytes.len();
+
     clear(&mut builder);
 
-    for line in code
-    {
+    for line in code {
+        if line.ends_with(':') {
+            builder.labels.push(Label { name: line.replace(':', ""), addr: (builder.bytes.len() - boot_len) + load_address as usize });
+            continue
+        }
+
         let args: Vec<&str> = line.splitn(2, ' ').collect();
         let cmd = args[0].to_lowercase();
-        let first_arg = args[1];
 
-        if echo && !cmd.starts_with('@')
-        {
+        if echo && !cmd.starts_with('@') {
             print(&mut builder, &line, color);
         }
 
-        match cmd.as_str()
-        {
-            "@echo" => echo = first_arg == "on",
+        match cmd.as_str() {
+            "@echo" => echo = args[1] == "on",
             "help" => print(&mut builder, "help - Shows all commands with a brief description.\ncls - Clears the screen.\necho - Echoes a message, or turns on echo for commands.\npause - Pauses the OS until a key is pressed.\nver - Shows the version of Batch2OS.", color),
             "cls" => clear(&mut builder),
-            "echo" =>
-                {
-                    if args.len() == 1
-                    {
-                        print(&mut builder, format!("ECHO is {}.", if echo { "on" } else { "off" }).as_str(), color);
-                        continue
-                    }
+            "echo" => {
+                if args.len() == 1 {
+                    print(&mut builder, format!("ECHO is {}.", if echo { "on" } else { "off" }).as_str(), color);
+                    continue
+                }
 
-                    match first_arg
-                    {
-                        "on" => echo = true,
-                        "off" => echo = false,
-                        _ => print(&mut builder, first_arg, color)
-                    }
-                },
-            "color" => color = u8::from_str_radix(first_arg, 16).expect(&format!("Could not parse string \"{}\" as a hexadecimal number.", first_arg)),
+                let value = args[1];
+                match value {
+                    "on" => echo = true,
+                    "off" => echo = false,
+                    _ => print(&mut builder, value, color)
+                }
+            },
+            "color" => color = u8::from_str_radix(args[1], 16).expect(&format!("Could not parse string \"{}\" as a hexadecimal number.", args[1])),
             "pause" => pause(&mut builder, color),
-            "ver" => print(&mut builder, "Batch2OS v1.1.0", color),
+            "ver" => print(&mut builder, "Batch2OS v1.2.0", color),
+            "goto" => {
+                for i in 0..builder.labels.len() {
+                    let label = builder.labels.get(i).unwrap(); // There's practically no way this fails, as we know the label at the specific index exists
+                    if label.name == args[1] {
+                        builder.inst1_16(OpCode::JMP_FAR, label.addr as u16);
+                        builder.bytes.push(0); builder.bytes.push(0);
+                    }
+                }
+            }
             "rem" | "::" | "title" => {},
             _ => panic!("Unknown or unsupported instruction: {}", cmd)
         }
@@ -99,15 +109,13 @@ pub fn compile(code: Vec<String>, base_address: u16, load_address: u16) -> Vec<u
     builder.bytes
 }
 
-fn pause(builder: &mut Builder, color: u8)
-{
+fn pause(builder: &mut Builder, color: u8) {
     print(builder, "Press any key to continue...", color);
     builder.inst1_8(OpCode::MOV_IMM8_AH, 0);
     builder.inst1_8(OpCode::INT, 0x16);
 }
 
-fn clear(builder: &mut Builder)
-{
+fn clear(builder: &mut Builder) {
     // Clear screen
     builder.inst1_8(OpCode::MOV_IMM8_AH, 0);
     builder.inst1_8(OpCode::MOV_IMM8_AL, 3);
@@ -121,12 +129,9 @@ fn clear(builder: &mut Builder)
     builder.inst1_8(OpCode::INT, 0x10);
 }
 
-fn print(builder: &mut Builder, text: &str, color: u8)
-{
-    for b in text.bytes()
-    {
-        if b == 0x0A // ASCII Line Feed
-        {
+fn print(builder: &mut Builder, text: &str, color: u8) {
+    for b in text.bytes() {
+        if b == 0x0A { // ASCII Line Feed
             new_line(builder);
             continue
         }
@@ -147,16 +152,14 @@ fn print(builder: &mut Builder, text: &str, color: u8)
     new_line(builder);
 }
 
-fn new_line(builder: &mut Builder)
-{
+fn new_line(builder: &mut Builder) {
     builder.inst1_8(OpCode::MOV_IMM8_AH, 2); // Function code
     builder.inst1_8(OpCode::INC_RM8, encode_mod_rm(Register::DH_ESI, Register::AL_EAX_ES)); // New line
     builder.inst1_8(OpCode::MOV_IMM8_DL, 0); // Column
     builder.inst1_8(OpCode::INT, 0x10);
 }
 
-fn encode_mod_rm(dst: Register, src: Register) -> u8
-{
+fn encode_mod_rm(dst: Register, src: Register) -> u8 {
     u8::from_str_radix(&String::with_capacity(8)
         .add("11")
         .add(&format!("{:03b}", src as u8))

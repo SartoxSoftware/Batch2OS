@@ -1,7 +1,6 @@
 //https://www.felixcloutier.com/x86 <3333
 #[repr(u8)]
-pub enum OpCode
-{
+pub enum OpCode {
     MOV_OFF_AL = 0xA0,
     MOV_OFF_AX = 0xA1,
     MOV_AL_OFF = 0xA2,

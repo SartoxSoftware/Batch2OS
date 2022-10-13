@@ -1,6 +1,5 @@
 #[repr(u8)]
-pub enum Register
-{
+pub enum Register {
     AL_EAX_ES,
     CL_ECX_CS,
     DL_EDX_SS,
